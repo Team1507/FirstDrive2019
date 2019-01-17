@@ -24,7 +24,7 @@ void Robot::RobotInit()
   frc::SmartDashboard::PutData("Auto Modes", &m_chooser);
 
 	//******** INIT *************************************
-  std::cout<<"JustDrive"<<std::endl;
+  std::cout<<"JustDriveProject"<<std::endl;
   std::cout<<"Deep Space 2019"<<std::endl;
 
 	//Display Version info to Log file, for posterity
