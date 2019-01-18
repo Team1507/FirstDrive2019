@@ -5,24 +5,26 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "OI.h"
-#include "commands/GrpTest2.h"
-#include <frc/WPILib.h>
-#include "commands/CmdDriveClearAll.h"
+#pragma once
 
-OI::OI() {
-  // Process operator interface input here.
+#include <frc/commands/Command.h>
 
-   //Init Gamepads
-  driver_gamepad   = new frc::Joystick(0); 
-  
-
-  frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
-  frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
-}
+class CmdDriveFwdGyro : public frc::Command {
+ public:
+    CmdDriveFwdGyro(double power, double heading, double distance, bool stop, double timeout);
+    
+    void Initialize() override;
+    void Execute() override;
+    bool IsFinished() override;
+    void End() override;
+    void Interrupted() override;
 
 
-//Public Gamepad Access
-frc::Joystick* OI::DriverGamepad() {
-   return driver_gamepad;
-}
+  private:
+    double m_power;
+    double m_heading;
+    double m_distance;
+    bool   m_stop;
+    double m_timeout;   
+
+};

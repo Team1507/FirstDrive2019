@@ -5,24 +5,19 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "OI.h"
-#include "commands/GrpTest2.h"
-#include <frc/WPILib.h>
-#include "commands/CmdDriveClearAll.h"
+#include "Commands/CmdDriveClearAll.h"
+#include "Robot.h"
 
-OI::OI() {
-  // Process operator interface input here.
-
-   //Init Gamepads
-  driver_gamepad   = new frc::Joystick(0); 
-  
-
-  frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
-  frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
+CmdDriveClearAll::CmdDriveClearAll() {
+  // Use Requires() here to declare subsystem dependencies
+  // eg. Requires(Robot::chassis.get());
 }
 
+// Called once when the command executes
+void CmdDriveClearAll::Initialize() 
+{
+    //Use at the start of Auto to clear/reset all drivetrain parameters
+    Robot::m_drivetrain->ResetEncoders();
+    Robot::m_drivetrain->ZeroGyro();
 
-//Public Gamepad Access
-frc::Joystick* OI::DriverGamepad() {
-   return driver_gamepad;
 }

@@ -12,6 +12,8 @@
 //#include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
 #include "AHRS.h"
 
+
+
 class Drivetrain : public frc::Subsystem {
  private:
   // It's desirable that everything possible under private except
@@ -21,6 +23,12 @@ class Drivetrain : public frc::Subsystem {
   frc::SpeedController    *rightMotor;
   frc::DifferentialDrive  *differentialDrive;
 
+
+  frc::Encoder            *rightEncoder;
+  frc::Encoder            *leftEncoder;
+
+  
+
   AHRS *ahrs;	    //NavX
 
   frc::AnalogInput* analog0;
@@ -29,6 +37,9 @@ class Drivetrain : public frc::Subsystem {
 
   unsigned char m_currLineState; //to make kris happy :)
  public:
+
+ const static int ENC_TICKS_PER_INCH;
+
   Drivetrain();
   void InitDefaultCommand() override;
 
@@ -36,12 +47,19 @@ class Drivetrain : public frc::Subsystem {
 
   //*****Our Functions******
 
+  //Encoders
+	int  GetLeftEncoder(void);
+	int  GetRightEncoder(void);
+	void ResetEncoders(void);
+  
+
   //Periodic
   void   DrivetrainPeriodic(void);
 
   //Drive
   void   DriveWithGamepad( void );
   void   Drive( double left, double right );
+  void   Stop( void );
 
   //NavX
 	bool   IsGyroConnected(void);

@@ -20,6 +20,8 @@
 #define THROTTLE_ADJUSTMENT .08
 #define BOOSTED_THROTTLE	.5//.28
 
+const int Drivetrain::ENC_TICKS_PER_INCH = 42;
+
 
 Drivetrain::Drivetrain() : Subsystem("Drivetrain") 
 {
@@ -39,6 +41,12 @@ Drivetrain::Drivetrain() : Subsystem("Drivetrain")
 	//Not a good idea, but required for GrpTest -> WaitCommand() 
 	differentialDrive->SetSafetyEnabled(false);
 
+	rightEncoder      = new frc::Encoder(0, 1, false, frc::Encoder::k4X);
+	leftEncoder       = new frc::Encoder(2, 3, true, frc::Encoder::k4X);
+
+	rightEncoder->SetDistancePerPulse(1.0);
+	leftEncoder->SetDistancePerPulse(1.0);
+	
 }
 
 void Drivetrain::InitDefaultCommand() {
@@ -52,9 +60,31 @@ void Drivetrain::InitDefaultCommand() {
 
 
 //**************************************************************
+
+	
+	
+int	Drivetrain::GetLeftEncoder(void)
+{
+	return leftEncoder->GetRaw();
+}
+int Drivetrain::GetRightEncoder(void)
+{
+	return rightEncoder->GetRaw();
+}
+
+void Drivetrain::ResetEncoders(void)
+{
+	leftEncoder->Reset();
+	rightEncoder->Reset();
+
+    
+}
+
 void Drivetrain::DrivetrainPeriodic(void)
 {
 
+
+	
 	bool resetGyro = Robot::m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_X);
 	if(resetGyro == true) 
 	{
@@ -231,6 +261,11 @@ void Drivetrain::Drive( double left, double right )
 	//Neg=Fwd.   Pos=Rev
 	differentialDrive->TankDrive( (-1.0)*left,  (-1.0)*right,  false);
 
+}
+void Drivetrain::Stop( void )
+{
+	differentialDrive->TankDrive(0.0, 0.0, false);
+  	std::cout << "STOP!" << std::endl;
 }
 //**************** AHRS (NavX) *********************
 

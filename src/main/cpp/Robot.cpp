@@ -11,11 +11,13 @@
 #include <frc/smartdashboard/SmartDashboard.h>
 #include <cameraserver/CameraServer.h>
 #include "AHRS.h"
+#include "GamepadMap.h"
 ExampleSubsystem Robot::m_subsystem;
 OI *Robot::m_oi;
 Drivetrain *Robot::m_drivetrain;
 
-
+//local function prototypes
+void Write2Dashboard(void);
 
 void Robot::RobotInit() 
 {
@@ -44,7 +46,7 @@ void Robot::RobotInit()
   // 	//the driver camera, to be fixed
 	
   
-  //cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
+  cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
 
 	// camera.SetResolution(160, 120);
 
@@ -67,6 +69,9 @@ void Robot::RobotInit()
  */
 void Robot::RobotPeriodic() 
 {
+  Write2Dashboard();
+  //LogFileWrite();
+
   m_drivetrain->DrivetrainPeriodic();
 }
 
@@ -135,3 +140,32 @@ void Robot::TestPeriodic() {}
 #ifndef RUNNING_FRC_TESTS
 int main() { return frc::StartRobot<Robot>(); }
 #endif
+
+void Write2Dashboard(void)
+{
+
+  //SmartDashboard::PutNumber("L_Motor",  Robot::m_drivetrain->GetLeftMotor()  );
+  //SmartDashboard::PutNumber("R_Motor",  Robot::m_drivetrain->GetRightMotor()  );
+
+  SmartDashboard::PutNumber("D_L_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y)  );
+  SmartDashboard::PutNumber("D_R_Y_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y)  );
+  SmartDashboard::PutNumber("D_L_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_X)  );
+  SmartDashboard::PutNumber("D_R_X_axis",  Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)  );
+
+  SmartDashboard::PutNumber("D_L_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG)  );
+  SmartDashboard::PutNumber("D_R_Trig",    Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG)  );
+
+
+	SmartDashboard::PutNumber("LeftEnc",    Robot::m_drivetrain->GetLeftEncoder());
+	SmartDashboard::PutNumber("RightEnc",   Robot::m_drivetrain->GetRightEncoder());  
+	
+
+	SmartDashboard::PutBoolean("navx_IsConn", Robot::m_drivetrain->IsGyroConnected() );
+	SmartDashboard::PutNumber("navx_Yaw",     Robot::m_drivetrain->GetGyroYaw() );
+  SmartDashboard::PutNumber("navx_Angle",   Robot::m_drivetrain->GetGyroAngle() );
+ 
+  SmartDashboard::PutNumber("navx_Rate",    Robot::m_drivetrain->GetGyroRate() );
+
+	
+  
+}

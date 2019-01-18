@@ -5,24 +5,11 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#include "OI.h"
-#include "commands/GrpTest2.h"
-#include <frc/WPILib.h>
-#include "commands/CmdDriveClearAll.h"
+#pragma once
 
-OI::OI() {
-  // Process operator interface input here.
+#include <frc/commands/CommandGroup.h>
 
-   //Init Gamepads
-  driver_gamepad   = new frc::Joystick(0); 
-  
-
-  frc::SmartDashboard::PutData("GrpTest2 Command", new GrpTest2() );
-  frc::SmartDashboard::PutData("ZeroEncoder", new CmdDriveClearAll() );
-}
-
-
-//Public Gamepad Access
-frc::Joystick* OI::DriverGamepad() {
-   return driver_gamepad;
-}
+class GrpTest2 : public frc::CommandGroup {
+ public:
+  GrpTest2();
+};
