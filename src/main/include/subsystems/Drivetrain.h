@@ -43,6 +43,8 @@ class Drivetrain : public frc::Subsystem {
   Drivetrain();
   void InitDefaultCommand() override;
 
+  bool LineFollower(void);
+
 
 
   //*****Our Functions******

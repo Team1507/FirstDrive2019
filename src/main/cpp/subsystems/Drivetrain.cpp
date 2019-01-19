@@ -148,36 +148,105 @@ void Drivetrain::DriveWithGamepad( void )
 	if (fabs(yR)<= deadband) yR = 0;
 	if (fabs(xR)<= deadband) xR = 0;
 
+	
+	
+	if(tR >= .5) //if joystick pushed 
+	{
+		bool found = LineFollower();
+		if (!found)
+			differentialDrive->ArcadeDrive(yL,xR,  true);//if this was in the ELSE one "tick" of driving would be lost
+
+		
+	}
+	else 
+	{
+		differentialDrive->ArcadeDrive(yL,xR,  true);//if this was in the ELSE one "tick" of driving would be lost
+
+	}
+	
+
+	
+	
+	// 	//Arcade Drive
+	//differentialDrive->ArcadeDrive(yL,xR,  true); THIS ONE IS GOOD HERE LOOK HERE
+	// }
+
+
+
+}
+
+//**************************************************************
+void Drivetrain::Drive( double left, double right )
+{
+	//Neg=Fwd.   Pos=Rev
+	differentialDrive->TankDrive( (-1.0)*left,  (-1.0)*right,  false);
+
+}
+void Drivetrain::Stop( void )
+{
+	differentialDrive->TankDrive(0.0, 0.0, false);
+  	std::cout << "STOP!" << std::endl;
+}
+//**************** AHRS (NavX) *********************
+
+bool Drivetrain::IsGyroConnected(void)
+{
+	return ahrs->IsConnected();
+}
+double Drivetrain::GetGyroYaw(void)
+{
+    //Returns Relative Yaw:  -180 to +180
+	return (double) ahrs->GetYaw();
+}
+double Drivetrain::GetGyroAngle(void)
+{
+    //returns total accumulated angle -inf to +inf  (continuous through 360deg)
+	return (double) ahrs->GetAngle();
+	
+  
+}
+
+
+double Drivetrain::GetGyroRate(void)
+{
+	return ahrs->GetRate();
+}
+void Drivetrain::ZeroGyro(void)
+{
+  std::cout<<"ZeroGyro"<<std::endl;
+	ahrs->ZeroYaw();
+	//**OR
+	//ahrs->Reset();//????
+}
+
+
+
+bool Drivetrain::LineFollower(void)
+{
 	static unsigned char driveState = STATE_DRIVER_CONTROL;
 	
 	switch(driveState)
 	{
 		case STATE_DRIVER_CONTROL:
-			if(tR >= .5) //if joystick pushed 
-			{
+			
 				//EXTEND SENSORS
 				driveState = STATE_LINE_HUNT;
 				std::cout<<"Hunting..."<<std::endl;
-			}
-			else //Default/Normal state
-			{
-				//RETRACT SENSORS
-			}
-			differentialDrive->ArcadeDrive(yL,xR,  true);//if this was in the ELSE one "tick" of driving would be lost
+			return false;
 			break;
 		
 		case STATE_LINE_HUNT:
-			if(tR < .5) 
-			{
-				driveState = STATE_DRIVER_CONTROL;//if trigger released back to driver control
-			}
-			else if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
-			{
-				std::cout<<"ENTERING TRACKING STATE"<<std::endl;
-				driveState = STATE_LINE_FOLLOW; //follow it
-			}
-			differentialDrive->ArcadeDrive(yL,xR,  true); //remember hunt is manual
-			break;
+		if(tR < .5) 
+		{
+			driveState = STATE_DRIVER_CONTROL;//if trigger released back to driver control
+		}
+		else if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
+		{
+			std::cout<<"ENTERING TRACKING STATE"<<std::endl;
+			driveState = STATE_LINE_FOLLOW; //follow it
+		}
+		differentialDrive->ArcadeDrive(yL,xR,  true); //remember hunt is manual
+		break;
 		
 		case STATE_LINE_FOLLOW:	
 			if(tR < .5) //if trigger released
@@ -242,59 +311,4 @@ void Drivetrain::DriveWithGamepad( void )
 	
 	
 	
-	
-	
-	
-	
-	
-	// 	//Arcade Drive
-	//differentialDrive->ArcadeDrive(yL,xR,  true); THIS ONE IS GOOD HERE LOOK HERE
-	// }
-
-
-
-}
-
-//**************************************************************
-void Drivetrain::Drive( double left, double right )
-{
-	//Neg=Fwd.   Pos=Rev
-	differentialDrive->TankDrive( (-1.0)*left,  (-1.0)*right,  false);
-
-}
-void Drivetrain::Stop( void )
-{
-	differentialDrive->TankDrive(0.0, 0.0, false);
-  	std::cout << "STOP!" << std::endl;
-}
-//**************** AHRS (NavX) *********************
-
-bool Drivetrain::IsGyroConnected(void)
-{
-	return ahrs->IsConnected();
-}
-double Drivetrain::GetGyroYaw(void)
-{
-    //Returns Relative Yaw:  -180 to +180
-	return (double) ahrs->GetYaw();
-}
-double Drivetrain::GetGyroAngle(void)
-{
-    //returns total accumulated angle -inf to +inf  (continuous through 360deg)
-	return (double) ahrs->GetAngle();
-	
-  
-}
-
-
-double Drivetrain::GetGyroRate(void)
-{
-	return ahrs->GetRate();
-}
-void Drivetrain::ZeroGyro(void)
-{
-  std::cout<<"ZeroGyro"<<std::endl;
-	ahrs->ZeroYaw();
-	//**OR
-	//ahrs->Reset();//????
 }
