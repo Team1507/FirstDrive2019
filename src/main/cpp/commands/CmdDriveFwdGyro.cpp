@@ -37,8 +37,7 @@ void CmdDriveFwdGyro::Execute()
 {
 	//double errorAngle = Robot::m_drivetrain->GetGyroYaw() - m_heading;
 	double errorAngle = Robot::m_drivetrain->GetGyroAngle() - m_heading;
-	double kp = 0.075;
-
+	double kp = 0.04; //was 0.05
 
 	Robot::m_drivetrain->Drive(m_power - errorAngle*kp  ,  m_power + errorAngle*kp ); 
 	//Robot::m_drivetrain->DriveAcc(m_power - errorAngle*kp  ,  m_power + errorAngle*kp ); 
@@ -68,6 +67,12 @@ void CmdDriveFwdGyro::End()
 {
   if(m_stop)
 	{
+		std::cout<<"GyroAngle ";
+		std::cout<<Robot::m_drivetrain->GetGyroAngle()<<std::endl;
+		std::cout<<"EncoderValueL ";
+		std::cout<<Robot::m_drivetrain->GetLeftEncoder()<<std::endl;
+		std::cout<<"EncoderValueR ";
+		std::cout<<Robot::m_drivetrain->GetRightEncoder()<<std::endl;
 		Robot::m_drivetrain->Stop();
 	}
 }

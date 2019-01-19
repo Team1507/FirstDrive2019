@@ -16,9 +16,10 @@
 #define STATE_LINE_HUNT 	 1
 #define STATE_LINE_FOLLOW  	 2
 
-#define BASE_THROTTLE      	.4//.25	was too slow
+#define BASE_THROTTLE      	.35  //.4	
 #define THROTTLE_ADJUSTMENT .08
-#define BOOSTED_THROTTLE	.5//.28
+#define BOOSTED_THROTTLE	.5   //.28
+#define THROTTLE_MULTIPLIER	1.0
 
 const int Drivetrain::ENC_TICKS_PER_INCH = 42;
 
@@ -188,7 +189,7 @@ void Drivetrain::DriveWithGamepad( void )
 			{
 				driveState = STATE_LINE_HUNT; //go back to hunt
 				std::cout<<"Line lost, Leaving Follow."<<std::endl;
-				//RUmble off :((
+				//Rumble off :(
 			}
 			else
 			{
@@ -199,24 +200,24 @@ void Drivetrain::DriveWithGamepad( void )
 				{
 					//THIS IS THE NIGHTMARE OF ALL THE CRAZY CASES. if 101...panic
 					case 100:
-						 leftFollowThrottle  = BASE_THROTTLE + 2*THROTTLE_ADJUSTMENT;
-						rightFollowThrottle  = BASE_THROTTLE - 2*THROTTLE_ADJUSTMENT;
+						 leftFollowThrottle  = BASE_THROTTLE - THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
+						rightFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
 						break;
 					case 110:
-						leftFollowThrottle  =  BASE_THROTTLE + THROTTLE_ADJUSTMENT;
-						rightFollowThrottle =  BASE_THROTTLE - THROTTLE_ADJUSTMENT;                  //SHOULD be a little less but we might not need to change it
+						leftFollowThrottle  =  BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;
+						rightFollowThrottle =  BASE_THROTTLE + THROTTLE_ADJUSTMENT;                  //SHOULD be a little less but we might not need to change it
 						break;
 					case 10:
 						leftFollowThrottle = BASE_THROTTLE;
 						rightFollowThrottle = BASE_THROTTLE;
 						break;
 					case 11:
-						leftFollowThrottle  = BASE_THROTTLE - THROTTLE_ADJUSTMENT;
-						rightFollowThrottle = BASE_THROTTLE + THROTTLE_ADJUSTMENT;               //SHOULD be a little less but we might not need to change it
+						leftFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT;
+						rightFollowThrottle = BASE_THROTTLE; //- THROTTLE_ADJUSTMENT;               //SHOULD be a little less but we might not need to change it
 						break;
 					case 1:
-						leftFollowThrottle  = BASE_THROTTLE - 2*THROTTLE_ADJUSTMENT;
-						rightFollowThrottle = BASE_THROTTLE + 2*THROTTLE_ADJUSTMENT;
+						leftFollowThrottle  = BASE_THROTTLE + THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
+						rightFollowThrottle = BASE_THROTTLE - THROTTLE_ADJUSTMENT; //was 2*throttle_adjust
 						break;
 					case 101:
 						driveState = STATE_LINE_HUNT;
@@ -228,7 +229,7 @@ void Drivetrain::DriveWithGamepad( void )
 				}
 				frc::SmartDashboard::PutNumber("LEFT THROTTLE", leftFollowThrottle);
 				frc::SmartDashboard::PutNumber("RIGHT THROTTLE", rightFollowThrottle);
-				Drive(leftFollowThrottle*(-1), rightFollowThrottle*(-1));	
+				Drive(leftFollowThrottle*(THROTTLE_MULTIPLIER), rightFollowThrottle*(THROTTLE_MULTIPLIER));	//was -1,-1
 			}
 			break;
 

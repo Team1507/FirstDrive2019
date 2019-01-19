@@ -24,7 +24,7 @@ void CmdDriveTurn2Heading::Initialize()
 {
     
 	m_isRightTurn = Robot::m_drivetrain->GetGyroYaw() < m_heading;
-	m_heading = (Robot::m_drivetrain->GetGyroYaw() - m_heading) * -.92; //this is Mr. B's compensating for drift
+	//m_heading = (Robot::m_drivetrain->GetGyroYaw() - m_heading) * -.90; //this is Mr. B's compensating for drift //was -.92
     if( m_isRightTurn)  std::cout<< "T2H: Right Turn" << std::endl;
     else                std::cout<< "T2H: Left Turn" << std::endl;
 }
@@ -72,6 +72,12 @@ bool CmdDriveTurn2Heading::IsFinished()
 // Called once after isFinished returns true
 void CmdDriveTurn2Heading::End() 
 {
+	std::cout<<"GyroAngle ";
+	std::cout<<Robot::m_drivetrain->GetGyroAngle()<<std::endl;
+	std::cout<<"EncoderValueL ";
+	std::cout<<Robot::m_drivetrain->GetLeftEncoder()<<std::endl;
+	std::cout<<"EncoderValueR ";
+	std::cout<<Robot::m_drivetrain->GetRightEncoder()<<std::endl;
     Robot::m_drivetrain->Stop();
 }
 

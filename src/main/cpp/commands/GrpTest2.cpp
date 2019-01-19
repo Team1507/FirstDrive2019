@@ -31,7 +31,7 @@ GrpTest2::GrpTest2()
     AddSequential(new WaitCommand(0.25));
     //***************************************************
     AddSequential(new CmdDriveFwdGyro(0.4, 0, 120, true, 0.0)); //was 0.4,-70,80
-    AddSequential(new CmdDriveTurn2Heading(0.4, -90));
+    AddSequential(new CmdDriveTurn2Heading(0.45, -90)); //was 0.5,-90
     AddSequential(new CmdDriveFwdGyro(0.35, -90, 48, true, 0.0));
     //AddSequential(new CmdDriveFwdEncoder(0.4, 120, true, 0.0)); //was 0.4,120
     //AddSequential(new CmdDriveFwdEncoder(0.1, 5, true, 0.0)); //was 0.4,120
