@@ -37,7 +37,7 @@ void CmdDriveFwdEncoder::Execute()
  	double l_dir = Robot::m_drivetrain->GetLeftEncoder()/Drivetrain::ENC_TICKS_PER_INCH;
 	double r_dir = Robot::m_drivetrain->GetRightEncoder()/Drivetrain::ENC_TICKS_PER_INCH;
 	double delta = l_dir - r_dir;
-	double kp    = -0.05;
+	double kp    = -0.4; //was -0.18
 
 	Robot::m_drivetrain->Drive(m_power - delta*kp  ,  m_power + delta*kp ); 
 	//Robot::m_drivetrain->DriveAcc(m_power - delta*kp  ,  m_power + delta*kp ); 

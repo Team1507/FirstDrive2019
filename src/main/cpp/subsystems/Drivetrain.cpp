@@ -135,7 +135,7 @@ void Drivetrain::DriveWithGamepad( void )
 	double yL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_Y);
 	double xL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_X);
 	double yR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_Y);
-	double xR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X);
+	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
 	double leftFollowThrottle;
@@ -146,7 +146,6 @@ void Drivetrain::DriveWithGamepad( void )
 	if (fabs(xL)<= deadband) xL = 0;
 	if (fabs(yR)<= deadband) yR = 0;
 	if (fabs(xR)<= deadband) xR = 0;
-
 
 	static unsigned char driveState = STATE_DRIVER_CONTROL;
 	

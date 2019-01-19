@@ -12,7 +12,7 @@ CmdDriveRevEncoder::CmdDriveRevEncoder(double power, double distance, bool stop,
 {
   m_power    = (-1.0) * power;		//Reverse = negative power
   m_distance = (-1.0) * distance;	//Reverse = Negative distance
-  m_stop     = stop;
+  m_stop     = stop;							//stop = true; coast = false
   m_timeout  = timeout;
 
   // Use Requires() here to declare subsystem dependencies

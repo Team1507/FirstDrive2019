@@ -46,7 +46,7 @@ void Robot::RobotInit()
   // 	//the driver camera, to be fixed
 	
   
-  cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
+  //cs::UsbCamera camera = frc::CameraServer::GetInstance()->StartAutomaticCapture();
 
 	// camera.SetResolution(160, 120);
 

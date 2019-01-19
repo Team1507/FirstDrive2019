@@ -12,7 +12,7 @@ CmdDriveTurn2Heading::CmdDriveTurn2Heading(double power, double heading)
 {
     m_power   = power;
     m_heading = heading;
-
+	
     // Use Requires() here to declare subsystem dependencies
     // eg. Requires(Robot::chassis.get());
     Requires( Robot::m_drivetrain);
@@ -22,8 +22,9 @@ CmdDriveTurn2Heading::CmdDriveTurn2Heading(double power, double heading)
 // Called just before this Command runs the first time
 void CmdDriveTurn2Heading::Initialize() 
 {
-    m_isRightTurn = Robot::m_drivetrain->GetGyroYaw() < m_heading;
-
+    
+	m_isRightTurn = Robot::m_drivetrain->GetGyroYaw() < m_heading;
+	m_heading = (Robot::m_drivetrain->GetGyroYaw() - m_heading) * -.92; //this is Mr. B's compensating for drift
     if( m_isRightTurn)  std::cout<< "T2H: Right Turn" << std::endl;
     else                std::cout<< "T2H: Left Turn" << std::endl;
 }
@@ -34,12 +35,12 @@ void CmdDriveTurn2Heading::Execute()
 	if( m_isRightTurn )
 	{
 		//Right turn.  Drive LEFT motor hard
-		Robot::m_drivetrain->Drive(m_power, 0.1);
+		Robot::m_drivetrain->Drive(m_power, 0.0); //"no magic numbers" said kris; was .1
 	}
 	else
 	{
 		//Left turn.  Drive RIGHT motor hard
-		Robot::m_drivetrain->Drive(0.1, m_power);
+		Robot::m_drivetrain->Drive(0.0, m_power); //"no magic numbers" said kris; was .1
 	}
 
 }
@@ -54,6 +55,7 @@ bool CmdDriveTurn2Heading::IsFinished()
 		{
 			return true;
 		}
+		
 	}
 	else
 	{
@@ -62,6 +64,7 @@ bool CmdDriveTurn2Heading::IsFinished()
 		{
 			return true;
 		}
+		
 	}
 	return false;
 }
