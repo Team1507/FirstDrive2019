@@ -21,6 +21,10 @@
 #include "Commands/CmdDriveRevEncoder.h"
 #include "Commands/CmdDriveTurn2Angle.h"
 #include "Commands/CmdDriveTurn2Heading.h"
+#include "Commands/CmdDeployLineSensors.h"
+#include "Commands/CmdDriveLineDriftLeft.h"
+
+
 #define FWD_PWR 0.6
 #define TRN_PWR 0.5
 
@@ -32,7 +36,13 @@ GrpTest2::GrpTest2()
     //***************************************************
     AddSequential(new CmdDriveFwdGyro(0.4, 0, 120, true, 0.0)); //was 0.4,-70,80
     AddSequential(new CmdDriveTurn2Heading(0.45, -90)); //was 0.5,-90
-    AddSequential(new CmdDriveFwdGyro(0.35, -90, 48, true, 0.0));
+
+    AddSequential(new CmdDeployLineSensors(true));                      //Deploy Line Sensors 
+    //AddSequential(new CmdDriveFwdGyro(0.35, -90, 48, true, 0.0));
+    AddSequential(new CmdDriveLineDriftLeft(0.35, -90, 48, true, 0.0));
+    AddSequential(new CmdDeployLineSensors(false));                     //Retract Line Sensors
+
+
     //AddSequential(new CmdDriveFwdEncoder(0.4, 120, true, 0.0)); //was 0.4,120
     //AddSequential(new CmdDriveFwdEncoder(0.1, 5, true, 0.0)); //was 0.4,120
     //AddSequential(new CmdDriveRevEncoder(0.5, 60, true, 0.0));  //was 0.5, 60

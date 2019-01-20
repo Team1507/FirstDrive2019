@@ -7,19 +7,13 @@
 
 #pragma once
 
-#include <frc/Commands/Command.h>
+#include <frc/commands/InstantCommand.h>
+#include "Robot.h"
 
-class CmdDriveTurn2Angle : public frc::Command {
+class CmdDeployLineSensors : public frc::InstantCommand {
  public:
-  CmdDriveTurn2Angle(double power, double angle);
+  CmdDeployLineSensors(bool value);
   void Initialize() override;
-  void Execute() override;
-  bool IsFinished() override;
-  void End() override;
-  void Interrupted() override;
 private:
-    double m_power;
-    double m_angle;
-    double m_calcAngle;
-    bool   m_isRightTurn;
+  bool m_value;
 };

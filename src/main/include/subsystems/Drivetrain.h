@@ -36,15 +36,14 @@ class Drivetrain : public frc::Subsystem {
   frc::AnalogInput* analog2; 
 
   unsigned char m_currLineState; //to make kris happy :)
+  bool lineSensorsDeployed;
+
  public:
 
  const static int ENC_TICKS_PER_INCH;
 
   Drivetrain();
   void InitDefaultCommand() override;
-
-  bool LineFollower(void);
-
 
 
   //*****Our Functions******
@@ -69,5 +68,10 @@ class Drivetrain : public frc::Subsystem {
 	double GetGyroAngle(void);          //angle: absolute -inf to +inf
 	double GetGyroRate(void);
 	void   ZeroGyro(void);
+
+  //Line Sensor/Follower
+  bool LineFollower(void);
+  void LineSensorsRetract(void);
+  void LineSensorsDeploy(void);
 
 };

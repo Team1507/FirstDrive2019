@@ -12,13 +12,12 @@
 #include "Commands\CmdDriveWithGamepad.h"
 #include "C:/Users/Admin/navx-mxp/cpp/include/AHRS.h"
 
-#define STATE_DRIVER_CONTROL 0
-#define STATE_LINE_HUNT 	 1
-#define STATE_LINE_FOLLOW  	 2
+//Line Follower State Machine
+#define STATE_LINE_HUNT 	 0
+#define STATE_LINE_FOLLOW  	 1
 
 #define BASE_THROTTLE      	.35  //.4	
 #define THROTTLE_ADJUSTMENT .08
-#define BOOSTED_THROTTLE	.5   //.28
 #define THROTTLE_MULTIPLIER	1.0
 
 const int Drivetrain::ENC_TICKS_PER_INCH = 42;
@@ -61,9 +60,6 @@ void Drivetrain::InitDefaultCommand() {
 
 
 //**************************************************************
-
-	
-	
 int	Drivetrain::GetLeftEncoder(void)
 {
 	return leftEncoder->GetRaw();
@@ -73,57 +69,58 @@ int Drivetrain::GetRightEncoder(void)
 	return rightEncoder->GetRaw();
 }
 
+
+
+//**************************************************************
 void Drivetrain::ResetEncoders(void)
 {
 	leftEncoder->Reset();
 	rightEncoder->Reset();
-
-    
 }
 
 void Drivetrain::DrivetrainPeriodic(void)
 {
-
-
-	
 	bool resetGyro = Robot::m_oi->DriverGamepad()->GetRawButtonPressed(GAMEPADMAP_BUTTON_X);
 	if(resetGyro == true) 
 	{
 		ZeroGyro();
 		std::cout << "Zero Gyro" << std::endl;
-
 	}
+
+
+	//****Line Follower Sensor ********************
 	double voltage0 = analog0->GetVoltage() ;
   	double voltage1 = analog1->GetVoltage() ;
   	double voltage2 = analog2->GetVoltage() ;
   
-  frc::SmartDashboard::PutNumber("v0", voltage0);
-  frc::SmartDashboard::PutNumber("v1", voltage1);
-  frc::SmartDashboard::PutNumber("v2", voltage2);
+	frc::SmartDashboard::PutNumber("v0", voltage0);
+	frc::SmartDashboard::PutNumber("v1", voltage1);
+	frc::SmartDashboard::PutNumber("v2", voltage2);
 
-  bool leftEye;
-  bool centerEye;
-  bool rightEye;
+	bool leftEye;
+	bool centerEye;
+	bool rightEye;
 
-  const double threshold = 3.2;
-  
-  if(voltage0 <= threshold) leftEye   = true; else (leftEye   = false);
-  if(voltage1 <= threshold) centerEye = true; else (centerEye = false);
-  if(voltage2 <= threshold) rightEye  = true; else (rightEye  = false);
+	const double threshold = 3.2;
+	
+	if(voltage0 <= threshold) leftEye   = true; else (leftEye   = false);
+	if(voltage1 <= threshold) centerEye = true; else (centerEye = false);
+	if(voltage2 <= threshold) rightEye  = true; else (rightEye  = false);
 
-  frc::SmartDashboard::PutBoolean("L", leftEye);
-  frc::SmartDashboard::PutBoolean("C", centerEye);
-  frc::SmartDashboard::PutBoolean("R", rightEye);
-  
-  int currState = 0;
-  if(leftEye)  currState = currState + 100;
-  if(centerEye)currState = currState + 10;
-  if(rightEye) currState = currState + 1;
-  m_currLineState = currState;
+	frc::SmartDashboard::PutBoolean("L", leftEye);
+	frc::SmartDashboard::PutBoolean("C", centerEye);
+	frc::SmartDashboard::PutBoolean("R", rightEye);
+	frc::SmartDashboard::PutBoolean("Deployed", lineSensorsDeployed);
+	
+	int currState = 0;
+	if(leftEye)  currState = currState + 100;
+	if(centerEye)currState = currState + 10;
+	if(rightEye) currState = currState + 1;
+	m_currLineState = currState;
 
-  //Write Gyro to dashboard
-  frc::SmartDashboard::PutNumber("GyroAngle", GetGyroAngle());
-  
+	//Write Gyro to dashboard
+	frc::SmartDashboard::PutNumber("GyroAngle", GetGyroAngle());
+	
 }
 
 
@@ -139,39 +136,35 @@ void Drivetrain::DriveWithGamepad( void )
 	double xR = -(Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_X)); //ben did this to fix L being R and R being L
 	double tL = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_L_TRIG);
 	double tR = Robot::m_oi->DriverGamepad()->GetRawAxis(GAMEPADMAP_AXIS_R_TRIG);
-	double leftFollowThrottle;
-	double rightFollowThrottle;
-	
-	
+
 	if (fabs(yL)<= deadband) yL = 0;
 	if (fabs(xL)<= deadband) xL = 0;
 	if (fabs(yR)<= deadband) yR = 0;
 	if (fabs(xR)<= deadband) xR = 0;
 
-	
-	
-	if(tR >= .5) //if joystick pushed 
-	{
-		bool found = LineFollower();
-		if (!found)
-			differentialDrive->ArcadeDrive(yL,xR,  true);//if this was in the ELSE one "tick" of driving would be lost
 
-		
+	if(tR >= .5) //if Right Trigger pushed, Enable Line Follow if detected
+	{
+		//If Sensors not deployed, deploy them
+		if( !lineSensorsDeployed )
+			LineSensorsDeploy();
+
+		//If LineFolower returns False (line not detected), use Gamepad for drive
+		if ( !LineFollower() )
+			differentialDrive->ArcadeDrive(yL,xR, true);
+
 	}
 	else 
 	{
-		differentialDrive->ArcadeDrive(yL,xR,  true);//if this was in the ELSE one "tick" of driving would be lost
-
+		//If sensors deployed, retract them
+		if( lineSensorsDeployed )
+			LineSensorsRetract();
+		//Use Gamepad to drive
+		differentialDrive->ArcadeDrive(yL,xR, true);
 	}
-	
-
-	
-	
+		
 	// 	//Arcade Drive
 	//differentialDrive->ArcadeDrive(yL,xR,  true); THIS ONE IS GOOD HERE LOOK HERE
-	// }
-
-
 
 }
 
@@ -180,15 +173,15 @@ void Drivetrain::Drive( double left, double right )
 {
 	//Neg=Fwd.   Pos=Rev
 	differentialDrive->TankDrive( (-1.0)*left,  (-1.0)*right,  false);
-
 }
 void Drivetrain::Stop( void )
 {
 	differentialDrive->TankDrive(0.0, 0.0, false);
   	std::cout << "STOP!" << std::endl;
 }
-//**************** AHRS (NavX) *********************
 
+
+//**************** AHRS (NavX) *********************
 bool Drivetrain::IsGyroConnected(void)
 {
 	return ahrs->IsConnected();
@@ -202,11 +195,7 @@ double Drivetrain::GetGyroAngle(void)
 {
     //returns total accumulated angle -inf to +inf  (continuous through 360deg)
 	return (double) ahrs->GetAngle();
-	
-  
 }
-
-
 double Drivetrain::GetGyroRate(void)
 {
 	return ahrs->GetRate();
@@ -220,45 +209,32 @@ void Drivetrain::ZeroGyro(void)
 }
 
 
+//**************** Line Follower *********************
 
 bool Drivetrain::LineFollower(void)
 {
-	static unsigned char driveState = STATE_DRIVER_CONTROL;
-	
+	static unsigned char driveState = STATE_LINE_HUNT;
+	double leftFollowThrottle;
+	double rightFollowThrottle;
+
 	switch(driveState)
 	{
-		case STATE_DRIVER_CONTROL:
-			
-				//EXTEND SENSORS
-				driveState = STATE_LINE_HUNT;
-				std::cout<<"Hunting..."<<std::endl;
+		
+		case STATE_LINE_HUNT:
+			if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
+			{
+				std::cout<<"ENTERING FOLLOW STATE"<<std::endl;
+				driveState = STATE_LINE_FOLLOW; //follow it
+			}
 			return false;
 			break;
 		
-		case STATE_LINE_HUNT:
-		if(tR < .5) 
-		{
-			driveState = STATE_DRIVER_CONTROL;//if trigger released back to driver control
-		}
-		else if((m_currLineState > 0) && (m_currLineState < 111))//if the line is found
-		{
-			std::cout<<"ENTERING TRACKING STATE"<<std::endl;
-			driveState = STATE_LINE_FOLLOW; //follow it
-		}
-		differentialDrive->ArcadeDrive(yL,xR,  true); //remember hunt is manual
-		break;
-		
 		case STATE_LINE_FOLLOW:	
-			if(tR < .5) //if trigger released
-			{
-				std::cout<<"Hunting Stopped, Trigger Released."<<std::endl;
-				driveState = STATE_DRIVER_CONTROL;//back to driver control
-			}
-			else if((m_currLineState == 0) || (m_currLineState == 111))//if the line lost/confused back to hunt
+			if((m_currLineState == 0) || (m_currLineState == 111))//if the line lost/confused back to hunt
 			{
 				driveState = STATE_LINE_HUNT; //go back to hunt
 				std::cout<<"Line lost, Leaving Follow."<<std::endl;
-				//Rumble off :(
+				return false;
 			}
 			else
 			{
@@ -291,10 +267,12 @@ bool Drivetrain::LineFollower(void)
 					case 101:
 						driveState = STATE_LINE_HUNT;
 						std::cout<<"OH MY GOODNESS PANIC 101 POTENTIAL SENSOR FAILURE BLAME BUILD TEAM"<<std::endl;
+						return false;
 						break;
-					//default:
-						//driveState = STATE_LINE_HUNT; //panic
-						//std::cout<<"oh my an invalid state oh no"<<std::endl;
+					default:
+						driveState = STATE_LINE_HUNT; //panic
+						std::cout<<"oh my an invalid state oh no"<<std::endl;
+						return false;
 				}
 				frc::SmartDashboard::PutNumber("LEFT THROTTLE", leftFollowThrottle);
 				frc::SmartDashboard::PutNumber("RIGHT THROTTLE", rightFollowThrottle);
@@ -303,12 +281,25 @@ bool Drivetrain::LineFollower(void)
 			break;
 
 		default:
-			driveState = STATE_DRIVER_CONTROL; //failsafe
+			driveState = STATE_LINE_HUNT; //failsafe
+			return false;
 			break;
 
 	}
 	frc::SmartDashboard::PutNumber("LINE FOLLOW STATE", driveState);
-	
-	
-	
+	return true;
+
+}
+
+void Drivetrain::LineSensorsRetract(void)
+{
+	//RETRACT SENSORS HERE!!
+	lineSensorsDeployed = false;
+	std::cout << "Line Sensors Retract" << std::endl;
+}
+void Drivetrain::LineSensorsDeploy(void)
+{
+	//DEPLOY SENSORS HERE
+	lineSensorsDeployed = true;
+	std::cout << "Line Sensors Deploy" << std::endl;
 }

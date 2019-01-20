@@ -5,21 +5,18 @@
 /* the project.                                                               */
 /*----------------------------------------------------------------------------*/
 
-#pragma once
+#include "commands/CmdDeployLineSensors.h"
 
-#include <frc/Commands/Command.h>
+CmdDeployLineSensors::CmdDeployLineSensors(bool value)
+{
+  m_value = value;
+}
 
-class CmdDriveTurn2Angle : public frc::Command {
- public:
-  CmdDriveTurn2Angle(double power, double angle);
-  void Initialize() override;
-  void Execute() override;
-  bool IsFinished() override;
-  void End() override;
-  void Interrupted() override;
-private:
-    double m_power;
-    double m_angle;
-    double m_calcAngle;
-    bool   m_isRightTurn;
-};
+// Called once when the command executes
+void CmdDeployLineSensors::Initialize() 
+{
+  if(m_value)
+    Robot::m_drivetrain->LineSensorsDeploy();
+  else
+    Robot::m_drivetrain->LineSensorsRetract();
+}

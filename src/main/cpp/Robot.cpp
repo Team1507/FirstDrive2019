@@ -57,6 +57,10 @@ void Robot::RobotInit()
   // camera.SetExposureManual(38);   //0- Mbps 0.73, darker //100- Mbps .31, lighter
 
 
+  //Init Subsystems here
+  m_drivetrain->LineSensorsRetract();
+  
+
 }
 
 /**
